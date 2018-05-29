@@ -84,6 +84,9 @@ class Login
 
 				$this->db->insert('users', $reg_data);
 
+				// Inform user to set new password
+				$this->send_password_mail('bbbalu@live.com');
+
 				$status = array('code' => '1', 'type' => "success", 'msg' => "Úspešná registrácia!");
 			}
 			else
@@ -140,44 +143,48 @@ class Login
 		return $result;
 	}
 
+	public function edit_pass($email, $pass)
+	{
+		$this->db->where('email =', $email)->update('users', array('password' => md5($pass), 'mail_hash' => '', 'verificated' => '1'));
+		$status = array('code' => '1', 'type' => "success", 'msg' => "Heslo bolo úspešne zmenené!");
+		return $status;
+	}
+
 	public function send_password_mail($email)
 	{
+		require_once('libraries/phpmailer/class.phpmailer.php');
+        require_once('libraries/phpmailer/class.smtp.php');
 
-		use PHPMailer\PHPMailer\PHPMailer;
-		use PHPMailer\PHPMailer\Exception;
+        $userdata = $this->db->where('email =', $email)->run('users')->row();
 
-		require 'libraries/PHPMailer/src/Exception.php';
-		require 'libraries/PHPMailer/src/PHPMailer.php';
-		require 'libraries/PHPMailer/src/SMTP.php';
+		$mail = new PHPMailer(true); // Passing `true` enables exceptions
 
-		$mail = new PHPMailer(true);                              // Passing `true` enables exceptions
 		try {
 
 			$mail->IsSMTP(); // enable SMTP
-			$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
+			$mail->SMTPDebug = 0; // debugging: 1 = errors and messages, 2 = messages only
 			$mail->SMTPAuth = true; // authentication enabled
-			$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
-			$mail->Host = "smtp.gmail.com";
-			$mail->Port = 465; // or 587
+			$mail->Host = "smtp.zoznam.sk";
+			$mail->Port = 587; // or 587
+			$mail->CharSet = 'UTF-8';
 
-		    $mail->Username = 'schoolproject11223344@gmail.com';                 // SMTP username
-		    $mail->Password = 'SchoolSroject!!223344';                           // SMTP password
+		    $mail->Username = 'schoolproject112233@zoznam.sk'; // SMTP username
+		    $mail->Password = 'Asdasd123'; // SMTP password
 			
-			$mail->SetFrom("example@gmail.com", "Run System");
+			$mail->SetFrom("schoolproject112233@zoznam.sk", "Run System");
 			$mail->Subject = "Run System - Nastavte nové heslo";
-			$mail->Body = "Nastavte nové heslo";
 			$mail->AddAddress($email);
+		    $mail->isHTML(true); // Set email format to HTML
 
 		    //Content
-		    $mail->isHTML(true);                                  // Set email format to HTML
-		    $mail->AltBody = strip_tags($mail->Body);
+			$mail->Body = 'Overte Vašu mail adresu a nastavte si nové heslo kliknutim na nasledujúci odkaz: <br/><a href="'.PAGEURL.'/index.php?p=new_pass&hash='.$userdata->mail_hash.'">'.PAGEURL.'/index.php?p=new_pass&hash='.$userdata->mail_hash.'</a><br/><br/>Run System';
 
 		    $mail->send();
 
 		    return true;
 
 		} catch (Exception $e) {
-			$status = array('code' => '2', 'type' => "error", 'msg' => "E-mail nebolo možnóe poslať!");
+			$status = array('code' => '2', 'type' => "error", 'msg' => "E-mail nebolo možné odoslať!");
 			return $status;
 		}
 

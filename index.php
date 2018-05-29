@@ -1,5 +1,6 @@
 <?php
 define('BASEPATH', 'index.php');
+define('PAGEURL', 'http://localhost/webtech2/sem_vlastne/');
 
 define('TITLE', 'Semestrálne zadanie');
 

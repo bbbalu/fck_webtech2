@@ -341,6 +341,7 @@ form .section_title:after {
 	background: #98a1ae;
 }
 form input[type="text"],
+form input[type="password"],
 form input[type="number"] {
 	display: block;
 	width: 75%;

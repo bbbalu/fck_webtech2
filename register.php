@@ -4,8 +4,6 @@
 	if (isset($_POST['register'])) {
 		$status = $login->register($_POST);
 	}
-
-	$login->send_password_mail('');
 ?>
 
 <main class="container">
