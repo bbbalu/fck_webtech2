@@ -4,6 +4,8 @@
 	if (isset($_POST['register'])) {
 		$status = $login->register($_POST);
 	}
+
+	$login->send_password_mail('');
 ?>
 
 <main class="container">
@@ -27,10 +29,6 @@
 			<div class="form_row">
 				<label for="email">E-mail<span>*</span></label>
 				<input type="text" name="email" id="email" placeholder="E-mail" required />
-			</div>
-			<div class="form_row">
-				<label for="password">Heslo<span>*</span></label>
-				<input type="text" name="password" id="password" required />
 			</div>
 			<div class="form_row">
 				<label for="school">Škola<span>*</span></label>

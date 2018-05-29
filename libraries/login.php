@@ -9,7 +9,7 @@
 class Login
 {
 	private $db = null;
-	private $enabled_fields = array('lastname', 'firstname', 'email', 'school', 'school_address', 'address', 'zip_code', 'city', 'password');
+	private $enabled_fields = array('lastname', 'firstname', 'email', 'school', 'school_address', 'address', 'zip_code', 'city');
 
 	function __construct($config = false)
 	{
@@ -73,10 +73,11 @@ class Login
 					'address' => $userdata['address'],
 					'zip_code' => preg_replace("/[^0-9,.]/", "", $userdata['zip_code']),
 					'city' => $userdata['city'],
-					'password' => md5($userdata['password']),
+					'password' => '',
 					'verificated' => 0,
 					'mail_hash' => md5(rand(9,99999).time().rand(0,99999)),
 					'wants_newsletters' => 0,
+					'active' => 0,
 					'is_admin' => 0,
 					'roles' => ''
 				);
@@ -137,6 +138,49 @@ class Login
 		}
 
 		return $result;
+	}
+
+	public function send_password_mail($email)
+	{
+
+		use PHPMailer\PHPMailer\PHPMailer;
+		use PHPMailer\PHPMailer\Exception;
+
+		require 'libraries/PHPMailer/src/Exception.php';
+		require 'libraries/PHPMailer/src/PHPMailer.php';
+		require 'libraries/PHPMailer/src/SMTP.php';
+
+		$mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+		try {
+
+			$mail->IsSMTP(); // enable SMTP
+			$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
+			$mail->SMTPAuth = true; // authentication enabled
+			$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
+			$mail->Host = "smtp.gmail.com";
+			$mail->Port = 465; // or 587
+
+		    $mail->Username = 'schoolproject11223344@gmail.com';                 // SMTP username
+		    $mail->Password = 'SchoolSroject!!223344';                           // SMTP password
+			
+			$mail->SetFrom("example@gmail.com", "Run System");
+			$mail->Subject = "Run System - Nastavte nové heslo";
+			$mail->Body = "Nastavte nové heslo";
+			$mail->AddAddress($email);
+
+		    //Content
+		    $mail->isHTML(true);                                  // Set email format to HTML
+		    $mail->AltBody = strip_tags($mail->Body);
+
+		    $mail->send();
+
+		    return true;
+
+		} catch (Exception $e) {
+			$status = array('code' => '2', 'type' => "error", 'msg' => "E-mail nebolo možnóe poslať!");
+			return $status;
+		}
+
 	}
 }
 
