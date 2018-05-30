@@ -27,6 +27,7 @@ $user_level = (!$login->is_logged_in() ? 0 : ($login->is_admin() ? 2 : 1));
 ?>
 
 <body>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
 	<?php include('template/header.php'); ?>
 
@@ -56,7 +57,14 @@ $user_level = (!$login->is_logged_in() ? 0 : ($login->is_admin() ? 2 : 1));
 		}
 		else
 		{
-			include 'main_page.php';
+			if ($user_level > 0)
+			{
+				include 'my_trips.php';
+			}
+			else
+			{
+				include 'main_page.php';
+			}
 		}
 
 	?>

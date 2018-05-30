@@ -305,6 +305,11 @@ class db
 		return $this->query_result->num_rows;
 	}
 
+	public function last_insert_id()
+	{
+		return $this->query_result->insert_id;
+	}
+
 	public function close()
 	{
 		return $this->connection->close();

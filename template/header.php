@@ -20,9 +20,26 @@
 				// User levels
 				// 0 -> anonym - not logged in user, 1 -> logged in user, 2 -> logged in admin
 				$menus_by_user_levels = array(
-					0 => array('index.php' => 'Domov', 'index.php?p=register' => 'Registrácia', 'index.php?p=login' => 'Prihlásenie'),
-					1 => array('index.php' => 'Domov', 'index.php?p=results' => 'Výsledky', 'index.php?p=logout' => 'Odhlásenie'),
-					2 => array('index.php' => 'Domov', 'index.php?p=results' => 'Výsledky', 'index.php?p=users' => 'Používateľia', 'index.php?p=logout' => 'Odhlásenie')
+					0 => array(
+						'index.php' => 'Domov',
+						'index.php?p=register' => 'Registrácia',
+						'index.php?p=login' => 'Prihlásenie'
+					),
+					1 => array(
+						'index.php' => 'Trasy',
+						'index.php?p=results&user=0' => 'Moje vysledky',
+						'index.php?p=news' => 'Aktiality',
+						'index.php?p=logout' => 'Odhlásenie'
+					),
+					2 => array(
+						'index.php?p=users' => 'Používateľia',
+						'index.php?p=teams' => 'Team management',
+						'index.php' => 'Trasy',
+						'index.php?p=results' => 'Výsledky',
+						'index.php?p=results&user=0' => 'Moje vysledky',
+						'index.php?p=news' => 'Aktiality',
+						'index.php?p=logout' => 'Odhlásenie'
+					)
 				);
 			?>
 			<ul>

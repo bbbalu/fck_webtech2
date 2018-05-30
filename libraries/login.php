@@ -39,6 +39,10 @@ class Login
 				// Return a status info
 				$status = array('code' => '0', 'type' => "success", 'msg' => "Úspešné prihlásenie!");
 			}
+			elseif ($logged_in_user['verificated'] == '2')
+			{
+				header("Location: index.php?p=new_pass&hash=".$logged_in_user['mail_hash']);
+			}
 			else
 			{
 				// If user in not verificated by mail
@@ -188,6 +192,11 @@ class Login
 			return $status;
 		}
 
+	}
+
+	function subscribe($state) {
+		$this->db->where('id =', $_SESSION['user_id'])->update('users', array('wants_newsletters' => $state));
+		$_SESSION['userdata']['wants_newsletters'] = $state;
 	}
 }
 
