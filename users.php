@@ -174,7 +174,7 @@
 									<td><?php echo $usr->email ?></td>
 									<td><?php echo $usr->city.', '.$usr->address.', '.$usr->zip_code; ?></td>
 									<td>
-										<a class="button_a" href="<?php echo BASEPATH.'?p=results&user='.$usr->id; ?>">Zobraziť</a> 
+										<a class="button_a" href="<?php echo BASEPATH.'?p=results&user='.$usr->id; ?>">Tréningy</a> 
 										<?php echo ($usr->is_admin == 0) ? '<a class="button_a" href="'.BASEPATH.'?p=users&to_admin='.$usr->id.'">To admin</a>' : ''; ?>
 										<?php echo ($usr->is_admin == 1) ? '<a class="button_a" href="'.BASEPATH.'?p=users&to_user='.$usr->id.'">To user</a>' : ''; ?>
 									</td>

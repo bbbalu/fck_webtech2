@@ -33,10 +33,10 @@
 					),
 					2 => array(
 						'index.php?p=users' => 'Používateľia',
-						'index.php?p=teams' => 'Team management',
+						/*'index.php?p=teams' => 'Team management',*/
 						'index.php' => 'Trasy',
-						'index.php?p=results' => 'Výsledky',
-						'index.php?p=results&user=0' => 'Moje vysledky',
+						/*'index.php?p=results' => 'Výsledky',*/
+						'index.php?p=results&user='.@$_SESSION['user_id'] => 'Moje vysledky',
 						'index.php?p=news' => 'Aktiality',
 						'index.php?p=logout' => 'Odhlásenie'
 					)

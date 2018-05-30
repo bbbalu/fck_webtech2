@@ -198,5 +198,15 @@ class Login
 		$this->db->where('id =', $_SESSION['user_id'])->update('users', array('wants_newsletters' => $state));
 		$_SESSION['userdata']['wants_newsletters'] = $state;
 	}
+
+
+	function get_my_active_trip() {
+		return $this->db->where('id =', $_SESSION['user_id'])->run('users')->row()->active_trip;
+	}
+
+	function active_trip($trip_id) {
+		$this->db->where('id =', $_SESSION['user_id'])->update('users', array('active_trip' => $trip_id));
+		return true;
+	}
 }
 

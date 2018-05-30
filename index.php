@@ -4,9 +4,6 @@ define('PAGEURL', 'http://localhost/webtech2/sem_vlastne/');
 
 define('TITLE', 'Semestrálne zadanie');
 
-// Include header
-include('template/html_header.php');
-
 // Load config + db manager
 require_once('config.php');
 require_once('libraries/db.php');
@@ -23,6 +20,20 @@ $login = new login();
 // User levels
 // 0 -> anonym - not logged in user, 1 -> logged in user, 2 -> logged in admin
 $user_level = (!$login->is_logged_in() ? 0 : ($login->is_admin() ? 2 : 1));
+
+if (isset($_GET['ajax']))
+{
+	$file = dirname(__FILE__).DIRECTORY_SEPARATOR.str_replace('/', '', str_replace('.', '', $_GET['p'])).'.php';
+	if (is_file($file))
+	{
+		include $file;
+	}
+
+	exit();
+}
+
+// Include header
+include('template/html_header.php');
 
 ?>
 
