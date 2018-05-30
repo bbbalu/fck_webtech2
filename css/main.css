@@ -532,9 +532,6 @@ form .form_full {
 .timetable_table table .odsazena {
 	display: none;
 }
-.timetable_table table tbody tr:last-child {
-	display: none;
-}
 
 #map {
 	height: 500px;

@@ -33,6 +33,41 @@
 			{
 				$db->insert('newsletters', array('name' => $_POST['name'], 'content' => $_POST['content'], 'time' => time()));
 				$status = array('code' => '1', 'type' => "success", 'msg' => "Článok bol úspešne uložený!");
+
+				require_once('libraries/phpmailer/class.phpmailer.php');
+		        require_once('libraries/phpmailer/class.smtp.php');
+
+		        $userdata = $db->where('email =', $email)->run('users')->row();
+
+				$mail = new PHPMailer(); // Passing `true` enables exceptions
+
+				$needers = $db->where('wants_newsletters =', '1')->run('users');
+
+				if ($needers->num_rows() > 0) {
+					foreach ($needers->result() as $needer) {
+
+						$mail->IsSMTP(); // enable SMTP
+						$mail->SMTPDebug = 0; // debugging: 1 = errors and messages, 2 = messages only
+						$mail->SMTPAuth = true; // authentication enabled
+						$mail->Host = "smtp.zoznam.sk";
+						$mail->Port = 587; // or 587
+						$mail->CharSet = 'UTF-8';
+
+					    $mail->Username = 'schoolproject112233@zoznam.sk'; // SMTP username
+					    $mail->Password = 'Asdasd123'; // SMTP password
+						
+						$mail->SetFrom("schoolproject112233@zoznam.sk", "Run System");
+						$mail->Subject = "Run System - Newsletter";
+						$mail->AddAddress($needer->email);
+					    $mail->isHTML(true); // Set email format to HTML
+
+					    //Content
+						$mail->Body = '<strong>'.$_POST['name'].'</strong><br/><br/>'.$_POST['content'].'<br/><br/>V prípade ak nechcete ďalej dostávať newslettery, prihláste sa do systému a na stránke aktuality sa môžete odhlásiť z odberu noviniek!<br/><br/>Run System';
+
+					    $mail->send();
+					}
+				}
+
 			}
 
 			$_SESSION['msg'] = $status;
@@ -50,7 +85,7 @@
 
 <main class="container">
 	<section>
-		
+
 		<?php
 			if (isset($_SESSION['msg'])) {
 				$status = $_SESSION['msg'];
