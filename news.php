@@ -35,7 +35,10 @@
 				$status = array('code' => '1', 'type' => "success", 'msg' => "Článok bol úspešne uložený!");
 			}
 
+			$_SESSION['msg'] = $status;
 			header("Location: ".BASEPATH.'?p=news');
+			session_write_close();
+			exit();
 		}
 
 	}
@@ -47,13 +50,18 @@
 
 <main class="container">
 	<section>
+		
+		<?php
+			if (isset($_SESSION['msg'])) {
+				$status = $_SESSION['msg'];
+				unset($_SESSION['msg']);
+			}
+		?>
 
 		<!-- Login page -->
 		<h1 class="page_title">Novinky - Newsletters</h1>
 
 		<article class="page_content">
-			<?php echo (isset($status) && $status['code'] != 0) ? '<div class="note '.$status['type'].'" id="send_status">'.$status['msg'].'</div>' : ''; ?>
-
 			<strong>Prihlásenie na odber noviniek:</strong>&nbsp; &nbsp; &nbsp; &nbsp;
 			<a class="button_a" href="<?php echo BASEPATH.'?p=news&subscribe='.($is_subscribed ? 0 : 1); ?>"><?php echo ($is_subscribed ? 'Odhlásiť sa z odberu noviniek' : 'Prihlásiť sa na odber noviniek'); ?></a>
 

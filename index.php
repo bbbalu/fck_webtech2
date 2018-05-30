@@ -71,5 +71,7 @@ $user_level = (!$login->is_logged_in() ? 0 : ($login->is_admin() ? 2 : 1));
 
 	<?php include('template/footer.php'); ?>
 
+	<script src="js/sorttable.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.2.61/jspdf.min.js"></script>
 </body>
 </html>
