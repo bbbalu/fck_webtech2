@@ -35,13 +35,15 @@
 		$in_data['end_lat'] = floatval(str_replace(',', '.', $in_data['end_lat']));
 		$in_data['end_lon'] = floatval(str_replace(',', '.', $in_data['end_lon']));
 
+		if (empty($in_data['day'])) $in_data['day'] = null;
+
 		$db->insert('workouts', array(
 			'user_id' => $_SESSION['user_id'],
 			'trip_id' => $active_trip,
 			'distance' => $in_data['distance'],
 			'day' => $in_data['day'],
-			'time_start' => $in_data['time_start'],
-			'time_end' => $in_data['time_end'],
+			'time_start' => intval($in_data['time_start']),
+			'time_end' => intval($in_data['time_end']),
 			'start_lat' => $in_data['start_lat'],
 			'start_lon' => $in_data['start_lon'],
 			'end_lat' => $in_data['end_lat'],

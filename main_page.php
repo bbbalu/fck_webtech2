@@ -62,7 +62,7 @@
 			          mapTypeId: 'terrain'
 			        });
 					bounds = new google.maps.LatLngBounds();
-					infoWindow = new google.maps.InfoWindow()
+					infoWindow = new google.maps.InfoWindow();
 					markers = [];
 					infoWindowOpeners = {};
 					geocoder = new google.maps.Geocoder();

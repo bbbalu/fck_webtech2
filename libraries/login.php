@@ -81,7 +81,6 @@ class Login
 					'verificated' => 0,
 					'mail_hash' => md5(rand(9,99999).time().rand(0,99999)),
 					'wants_newsletters' => 0,
-					'active' => 0,
 					'is_admin' => 0,
 					'roles' => ''
 				);
@@ -89,7 +88,7 @@ class Login
 				$this->db->insert('users', $reg_data);
 
 				// Inform user to set new password
-				$this->send_password_mail('bbbalu@live.com');
+				$this->send_password_mail($userdata['email']);
 
 				$status = array('code' => '1', 'type' => "success", 'msg' => "Úspešná registrácia!");
 			}

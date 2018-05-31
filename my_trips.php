@@ -42,7 +42,57 @@
 
 	if (isset($_GET['trip']))
 	{
-		$trip_data = $db->where('id =', $_GET['trip'])->run('trips');
+		$trip_query = $db->where('id =', $_GET['trip'])->run('trips');
+		if ($trip_query->num_rows() > 0)
+		{
+			$trip_data = $trip_query->row();
+
+			if ($trip_data->type != 3)
+			{
+				// Count full distance
+				$tmp_distance = 0;
+
+				// Private, public
+				$trip_data->workouts = false;
+				$trip_data->distances = array();
+
+				$workout_query = $db->where('user_id =', @$_GET['user'])->where('trip_id =', $trip_data->id)->run('workouts');
+
+				if ($workout_query->num_rows() > 0)
+				{
+					$trip_data->workouts = $workout_query->result();
+
+					foreach ($trip_data->workouts as $workout)
+					{
+						$tmp_distance += $workout->distance;
+					}
+					
+					$tmp_row = $db->where('id =', $_GET['user'])->run('users')->row();
+					$trip_data->distances[] = array('distance' => $tmp_distance, 'name' => $tmp_row->firstname.' '.$tmp_row->lastname);
+				}
+
+			}
+			else
+			{
+
+			}
+
+
+
+
+
+
+
+
+
+		}
+		else
+		{
+			$trip_data = new stdClass();
+			$trip_data->trip_name = 'Trasa neexistuje...';
+		}
+
+
 
 	}
 
@@ -54,7 +104,7 @@
 
 		// Get private trips -> $private_trips
 		$privt_query = $db->select('t.*, u.id AS user_id, u.firstname AS firstname, u.lastname AS lastname')->join('users AS u', 'u.id = t.user_id')->where('t.type =', 1);
-		if ($user_level != 2) $privt_query = $privt_query->where('u.id', $_SESSION['user_id']);
+		if ($user_level != 2) $privt_query = $privt_query->where('u.id =', $_SESSION['user_id']);
 		$privt_query = $privt_query->run('trips AS t');
 		if ($privt_query->num_rows() > 0)
 		{
@@ -113,14 +163,152 @@
 			?>
 
 			<!-- Login page -->
-			<h1 class="page_title">Trasy</h1>
+			<h1 class="page_title"><?php echo (isset($trip_data)) ? $trip_data->trip_name : 'Trasy'; ?></h1>
 
 			<?php echo (isset($status) && $status['code'] != 0) ? '<div class="note '.$status['type'].'" id="send_status">'.$status['msg'].'</div>' : ''; ?>
 
 		<?php endif; ?>
 
 		
-		<?php if (isset($_GET['new'])): ?>
+
+		<?php if (isset($_GET['trip']) && isset($trip_data->tripdata)): ?>
+
+			<div id="map"></div>
+
+			<?php foreach ($trip_data->distances as $distance) {
+				echo '<p><strong>'.$distance['name'].':</strong> Trasa / Splnené &nbsp; -> &nbsp; '.($trip_data->distance/1000).' / '.($distance['distance']/1000).'km</p>';
+			} ?>
+
+			<p><a onclick="window.history.back();" class="button_a">Naspäť</a></p>
+
+
+			<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsMZqqT3Azn1HQF5tk8pG6BYW9Qp4s6LY&callback=initMap&libraries=geometry&language=sk"></script>
+
+			<script type="text/javascript">
+
+				<?php
+					$jsdec = json_decode($trip_data->tripdata);
+					echo "var encodedPolyline = ". json_encode($jsdec->overview_polyline) . ";\n";
+				?>
+
+				var flatColors = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#34495e", "#16a085", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#95a5a6", "#f39c12", "#d35400", "#c0392b", "#bdc3c7", "#7f8c8d"];
+
+				var map;
+				var decodedPath;
+				var infoWindow;
+				var marker;
+				var polyline;
+
+				function initMap() {
+					map = new google.maps.Map(document.getElementById("map"), {
+						zoom: 7,
+						center: {lat: 48.7685, lng: 19.4807},
+						mapTypeControl: false
+					});
+
+					decodedPath = google.maps.geometry.encoding.decodePath(encodedPolyline);
+					
+					infoWindow = new google.maps.InfoWindow()
+					var bounds = new google.maps.LatLngBounds();
+					
+					for (var i = 0; i < decodedPath.length; i++) {
+						bounds.extend(decodedPath[i]);
+					}
+
+					polyline = new google.maps.Polyline({
+						path: decodedPath,
+						geodesic: true,
+						strokeColor: '#FF0000',
+						strokeOpacity: 1.0,
+						strokeWeight: 4
+					});
+
+					polyline.setMap(map);
+
+					addMarkerToPoint({name: 'Start', location: decodedPath[0]});
+
+					addMarkerToPoint({name: 'Ciel', location: decodedPath[decodedPath.length-1]});
+
+					google.maps.Polyline.prototype.distancePoint = function (metres) {
+						var next = metres[0].distance;
+						var points = [];
+						var dist = 0;
+						var olddist = 0;
+
+
+						for (var k = 0; k < metres.length; k++) {
+
+							for (var i = 1; (i < this.getPath().getLength()); i++) {
+								dist += google.maps.geometry.spherical.computeDistanceBetween(this.getPath().getAt(i), this.getPath().getAt(i - 1));
+								if (dist > metres[k].distance) {
+									points.push({name: metres[k].name, pos: i, point: this.getPath().getAt(i)});
+									next = metres[k].distance;
+									dist = 0;
+									break;
+								}
+							}
+
+						}
+
+						return points;
+					}
+
+
+					var distPoints = polyline.distancePoint(<?php echo json_encode($trip_data->distances); ?>);
+
+					for (pid in distPoints) {
+						addMarkerToPoint({name: distPoints[pid].name, location: distPoints[pid].point});
+						makePartPolyline(decodedPath.slice(0, distPoints[pid].pos), flatColors[pid]);
+					}
+
+					bounds.getCenter();
+					map.fitBounds(bounds);
+
+				}
+
+
+				function makePartPolyline(path, color) {
+					var partPolyline = new google.maps.Polyline({
+						path: path,
+						geodesic: true,
+						strokeColor: color,
+						strokeOpacity: 1.0,
+						strokeWeight: 8
+					});
+
+					partPolyline.setMap(map);
+				}
+				
+
+				function addMarkerToPoint(p) {
+					marker = new google.maps.Marker({
+						position: p.location,
+						map: map,
+						title: p.name
+					});
+
+					// Allow each marker to have info window
+					google.maps.event.addListener(marker, 'click', (function(marker, eid) {
+						return function() {
+							infoWindow.setContent('<strong>' + p.name + '</strong>');
+							infoWindow.open(map, marker);
+						}
+					})(marker));
+				}
+
+
+
+
+
+			</script>
+
+			
+
+
+
+
+
+		<?php elseif (isset($_GET['new'])): ?>
 
 			<article class="page_content">
 				<h2 style="margin-top: 0;">Vytvorenie trasy</h2>
@@ -253,26 +441,6 @@
 
 			</script>
 
-		<?php elseif (isset($_GET['trip'])): ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		<?php else: ?>
 		
 			<?php if (!isset($_GET['ajax'])): ?>
@@ -380,7 +548,7 @@
 											<td>
 												<a class="button_a" href="<?php echo BASEPATH.'?trip='.$trip->id.'&user='.$trip->user_id; ?>">Zobraziť</a> 
 												<?php if ($trip->id != $active_trip): ?><a class="button_a" href="<?php echo BASEPATH.'?activate='.$trip->id; ?>">Aktivovať</a><?php endif; ?>
-												<?php if ($user_level == 2): ?><a class="button_a" href="<?php echo BASEPATH.'?teams='.$trip->id; ?>">Teams</a><?php endif; ?>
+												<?php if ($user_level == 2): ?><a class="button_a" href="<?php echo BASEPATH.'?p=teams&trip='.$trip->id; ?>">Teams</a><?php endif; ?>
 											</td>
 										</tr>
 									<?php endforeach; ?>
@@ -420,7 +588,7 @@
 						}});
 					}
 					setInterval(refreshingLoop, 1000);
-					
+
 				</script>
 			<?php endif; ?>
 
