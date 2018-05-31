@@ -3,7 +3,7 @@
 <header>
 	<div class="container">
 		<div class="logo_container">
-			<a href="index.html" class="logo" title="Logo"></a>
+			<a href="index.php" class="logo" title="Logo"></a>
 			<div class="main_info">Webové technológie 2</div>
 			<div class="sub_info"><?php echo TITLE; ?></div>
 		</div>
@@ -28,16 +28,16 @@
 					1 => array(
 						'index.php' => 'Trasy',
 						'index.php?p=results&user=0' => 'Moje vysledky',
-						'index.php?p=news' => 'Aktiality',
+						'index.php?p=news' => 'Aktuality',
 						'index.php?p=logout' => 'Odhlásenie'
 					),
 					2 => array(
 						'index.php?p=users' => 'Používateľia',
-						/*'index.php?p=teams' => 'Team management',*/
+						'index.php?p=teams' => 'Team management',
 						'index.php' => 'Trasy',
 						/*'index.php?p=results' => 'Výsledky',*/
 						'index.php?p=results&user='.@$_SESSION['user_id'] => 'Moje vysledky',
-						'index.php?p=news' => 'Aktiality',
+						'index.php?p=news' => 'Aktuality',
 						'index.php?p=logout' => 'Odhlásenie'
 					)
 				);

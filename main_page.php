@@ -18,7 +18,7 @@
 
 		$sp_address = $user->city.', '.$user->address.', '.$user->zip_code;
 		if (isset($addresses[md5($sp_address)])) $addresses[md5($sp_address)]['num']++;
-		else $addresses[] = array("id" => $user->id, "name" => $user->firstname.' '.$user->lastname, "address" => $sp_address, "num" => 1);
+		else $addresses[] = array("id" => $user->id, "name" => $sp_address,/*$user->firstname.' '.$user->lastname,*/ "address" => $sp_address, "num" => 1);
 	}
 
 	?>

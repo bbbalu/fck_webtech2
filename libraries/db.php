@@ -23,6 +23,7 @@ class db
 	private $join_data = '';
 	private $where_data = '';
 	private $order_data = '';
+	private $insert_id = '';
 
 	private $bind_data = array();
 
@@ -258,6 +259,8 @@ class db
 			if(!$stmt->execute()) die($stmt->error);
 		}
 
+		$this->insert_id = $stmt->insert_id;
+
 		$this->initialize();
 
 		return $this;
@@ -307,7 +310,7 @@ class db
 
 	public function last_insert_id()
 	{
-		return $this->query_result->insert_id;
+		return $this->insert_id;
 	}
 
 	public function close()

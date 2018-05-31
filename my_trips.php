@@ -32,6 +32,11 @@
 			'tripdata' => $_POST['trip_code']
 		));
 
+		if ($login->get_my_active_trip() == 0)
+		{
+			$db->where('id =', $_SESSION['user_id'])->update('users', array('active_trip' => $db->last_insert_id()));
+		}
+
 		$status = array('code' => '1', 'type' => "success", 'msg' => "Trasa bola úspešne uložená!");
 
 		$_SESSION['msg'] = $status;
@@ -74,15 +79,35 @@
 			}
 			else
 			{
+				// Display the team distances
+
+				$trip_data->workouts = false;
+				$trip_data->distances = array();
+
+				$teams_query = $db->join('teams AS te', 'te.id = t2t.team_id')->where('t2t.trip_id =', $trip_data->id)->run('team2trip AS t2t');
+				if ($teams_query->num_rows() > 0) {
+					foreach ($teams_query->result() as $team) {
+						$dist = array('distance' => 0, 'name' => $team->name);
+
+						$user_kms_query = $db->join('workouts AS w', 'w.user_id = t2u.user_id', 'LEFT')->where('w.trip_id =', $trip_data->id)->where('t2u.team_id =', $team->team_id)->run('user2team AS t2u');
+
+						if ($user_kms_query->num_rows() > 0)
+						{
+							foreach ($user_kms_query->result() as $team_km) {
+								$dist['distance'] += $team_km->distance;
+							}
+						}
+
+						$trip_data->distances[] = $dist;
+					}
+
+					usort($trip_data->distances, function ($item1, $item2) {
+						if ($item1['distance'] == $item2['distance']) return 0;
+						return $item1['distance'] > $item2['distance'] ? -1 : 1;
+					});
+				}
 
 			}
-
-
-
-
-
-
-
 
 
 		}
@@ -191,7 +216,7 @@
 					echo "var encodedPolyline = ". json_encode($jsdec->overview_polyline) . ";\n";
 				?>
 
-				var flatColors = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#34495e", "#16a085", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#95a5a6", "#f39c12", "#d35400", "#c0392b", "#bdc3c7", "#7f8c8d"];
+				var flatColors = ["#1abc9c", "#7f8c8d", "#3498db", "#bdc3c7", "#34495e", "#c0392b", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#16a085", "#95a5a6", "#f39c12", "#d35400", "#9b59b6", "#2ecc71"];
 
 				var map;
 				var decodedPath;
@@ -254,12 +279,14 @@
 					}
 
 
-					var distPoints = polyline.distancePoint(<?php echo json_encode($trip_data->distances); ?>);
+					<?php if (count($trip_data->distances) > 0): ?>
+						var distPoints = polyline.distancePoint(<?php echo json_encode($trip_data->distances); ?>);
 
-					for (pid in distPoints) {
-						addMarkerToPoint({name: distPoints[pid].name, location: distPoints[pid].point});
-						makePartPolyline(decodedPath.slice(0, distPoints[pid].pos), flatColors[pid]);
-					}
+						for (pid in distPoints) {
+							addMarkerToPoint({name: distPoints[pid].name, location: distPoints[pid].point});
+							makePartPolyline(decodedPath.slice(0, distPoints[pid].pos), flatColors[pid]);
+						}
+					<?php endif; ?>
 
 					bounds.getCenter();
 					map.fitBounds(bounds);
@@ -548,7 +575,7 @@
 											<td>
 												<a class="button_a" href="<?php echo BASEPATH.'?trip='.$trip->id.'&user='.$trip->user_id; ?>">Zobraziť</a> 
 												<?php if ($trip->id != $active_trip): ?><a class="button_a" href="<?php echo BASEPATH.'?activate='.$trip->id; ?>">Aktivovať</a><?php endif; ?>
-												<?php if ($user_level == 2): ?><a class="button_a" href="<?php echo BASEPATH.'?p=teams&trip='.$trip->id; ?>">Teams</a><?php endif; ?>
+												<?php if (false && $user_level == 2): ?><a class="button_a" href="<?php echo BASEPATH.'?p=teams&trip='.$trip->id; ?>">Teams</a><?php endif; ?>
 											</td>
 										</tr>
 									<?php endforeach; ?>

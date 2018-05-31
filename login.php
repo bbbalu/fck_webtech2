@@ -24,7 +24,7 @@
 			</div>
 			<div class="form_row">
 				<label for="password">Heslo<span>*</span></label>
-				<input type="text" name="password" id="password" required />
+				<input type="password" name="password" id="password" required />
 			</div>
 
 			<div class="form_full">
